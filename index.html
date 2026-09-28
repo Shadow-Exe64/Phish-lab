@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phish Lab — Phishing Awareness Analysis</title>
+  <meta name="description" content="Paste a suspicious email or message and get red flags, a link breakdown, a verdict and clear next steps. Includes a spot-the-phish trainer and a triage playbook. Runs entirely in your browser.">
+  <meta name="color-scheme" content="light dark">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231d4e89'/%3E%3Cpath d='M16 5v13a4 4 0 1 1-4-4' fill='none' stroke='%23fff' stroke-width='2.6' stroke-linecap='round'/%3E%3Ccircle cx='16' cy='5' r='2' fill='%23fff'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Schibsted+Grotesk:wght@400;500;600;700;800&display=swap">
+  <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <script>try{const t=localStorage.getItem('phishlab.theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <a class="brand" href="#analyze" aria-label="Phish Lab home">
+        <svg viewBox="0 0 32 32" width="30" height="30" aria-hidden="true"><rect width="32" height="32" rx="8" fill="var(--accent)"/><path d="M16 5v13a4 4 0 1 1-4-4" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/><circle cx="16" cy="5" r="2" fill="#fff"/></svg>
+        <span>Phish Lab</span>
+      </a>
+      <nav class="tabs" role="tablist" aria-label="Sections">
+        <button class="tab" role="tab" id="t-analyze" aria-controls="analyze" aria-selected="true" data-tab="analyze">Analyze</button>
+        <button class="tab" role="tab" id="t-train" aria-controls="train" aria-selected="false" data-tab="train" tabindex="-1">Train</button>
+        <button class="tab" role="tab" id="t-playbook" aria-controls="playbook" aria-selected="false" data-tab="playbook" tabindex="-1">Playbook</button>
+      </nav>
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="Switch colour theme" title="Switch colour theme">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main id="main" class="container">
+
+    <!-- ============================ ANALYZE ============================ -->
+    <section id="analyze" role="tabpanel" aria-labelledby="t-analyze">
+      <div class="intro">
+        <h1>Is this message safe? Let's take it apart.</h1>
+        <p>Paste a suspicious email, SMS or chat message. Phish Lab lists the red flags, breaks down every link and tells you what to do next. Nothing is uploaded and no link is ever opened.</p>
+      </div>
+
+      <div class="analyze-grid">
+        <div class="input-col">
+          <div class="card stack" style="--gap:.8rem">
+            <div>
+              <label for="sample">Start with an example</label>
+              <select id="sample">
+                <option value="">Choose a sample message…</option>
+              </select>
+            </div>
+            <div>
+              <label for="msg">Message to inspect</label>
+              <textarea id="msg" rows="16" spellcheck="false" class="mono" placeholder="Paste the full message here, including the From, Reply-To and Subject lines and any links.&#10;&#10;Tip: in Gmail choose “Show original”, in Outlook choose “View message source”."></textarea>
+              <p class="hint">Contents stay in your browser. Links are shown defanged (hxxps://example[.]com) and are never visited.</p>
+            </div>
+            <div class="row">
+              <button class="btn btn-primary" id="btn-analyze" type="button">Analyze message</button>
+              <button class="btn" id="btn-clear" type="button">Clear</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="result-col" aria-live="polite">
+          <div id="empty" class="card empty">
+            <svg viewBox="0 0 64 64" width="64" height="64" aria-hidden="true"><circle cx="30" cy="30" r="18" fill="none" stroke="var(--line-strong)" stroke-width="4"/><path d="m44 44 14 14" stroke="var(--line-strong)" stroke-width="5" stroke-linecap="round"/><path d="M21 27h18M21 34h11" stroke="var(--accent)" stroke-width="3.5" stroke-linecap="round"/></svg>
+            <h2>Nothing analysed yet</h2>
+            <p class="muted">Pick a sample on the left or paste your own message, then press <strong>Analyze message</strong>.</p>
+          </div>
+
+          <div id="result" hidden>
+            <div class="verdict" id="verdict">
+              <div class="verdict-main">
+                <p class="v-kicker">Verdict</p>
+                <h2 id="v-title">—</h2>
+                <p id="v-summary" class="v-summary"></p>
+              </div>
+              <div class="verdict-side">
+                <div class="score"><span id="v-score">0</span><small>/ 100</small></div>
+                <div class="meter" role="img" id="v-meter" aria-label="Risk score"><i id="v-fill"></i><b style="left:20%"></b><b style="left:50%"></b></div>
+                <div class="meter-scale"><span>Safe</span><span>Suspicious</span><span>Malicious</span></div>
+                <div class="action-chip" id="v-action"></div>
+              </div>
+            </div>
+
+            <div class="card next" id="next"></div>
+
+            <div class="rtabs" role="tablist" aria-label="Analysis details">
+              <button class="tab" role="tab" data-rtab="flags" aria-selected="true" id="rt-flags">Red flags <span class="count" id="c-flags">0</span></button>
+              <button class="tab" role="tab" data-rtab="evidence" aria-selected="false" tabindex="-1" id="rt-evidence">Evidence view</button>
+              <button class="tab" role="tab" data-rtab="links" aria-selected="false" tabindex="-1" id="rt-links">Links <span class="count" id="c-links">0</span></button>
+              <button class="tab" role="tab" data-rtab="report" aria-selected="false" tabindex="-1" id="rt-report">Report</button>
+            </div>
+
+            <div class="rpanel" id="rp-flags" role="tabpanel" aria-labelledby="rt-flags"></div>
+            <div class="rpanel" id="rp-evidence" role="tabpanel" aria-labelledby="rt-evidence" hidden></div>
+            <div class="rpanel" id="rp-links" role="tabpanel" aria-labelledby="rt-links" hidden></div>
+            <div class="rpanel" id="rp-report" role="tabpanel" aria-labelledby="rt-report" hidden></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================ TRAIN ============================ -->
+    <section id="train" role="tabpanel" aria-labelledby="t-train" hidden>
+      <div class="intro">
+        <h1>Spot the phish</h1>
+        <p>Twelve messages, some real and some fake. Inspect each one the way an analyst would: reveal the sender address, check where the link really goes, then decide.</p>
+      </div>
+      <div id="quiz" class="quiz"></div>
+    </section>
+
+    <!-- ============================ PLAYBOOK ============================ -->
+    <section id="playbook" role="tabpanel" aria-labelledby="t-playbook" hidden>
+      <div class="intro">
+        <h1>The human firewall playbook</h1>
+        <p>Filters miss things. This is the short, practical guide to what attackers do and what to do about it.</p>
+      </div>
+
+      <div class="pb-grid">
+        <article class="card pb-wide">
+          <h2>Pause · Verify · Report</h2>
+          <ol class="pvr">
+            <li><b>1 Pause</b><span>Spot the trigger (urgency, fear, authority, curiosity, greed) and stop interacting. Give it five minutes.</span></li>
+            <li><b>2 Verify</b><span>Confirm through a second, known channel. If it came by email, phone a number from the company directory, never one in the message.</span></li>
+            <li><b>3 Report</b><span>Use the report button or forward to the security team. Do not just delete: reporting lets them remove it from every inbox.</span></li>
+          </ol>
+        </article>
+
+        <article class="card pb-wide">
+          <h2>Triage checklist for non-experts</h2>
+          <p class="muted">Work top to bottom. Every message ends with one action. Your ticks are saved in this browser.</p>
+          <div class="triage">
+            <ul class="checklist" id="triage-list">
+              <li><label class="check"><input type="checkbox" data-t="t1"> Open the full headers. Does the address after the @ match who it claims to be?</label></li>
+              <li><label class="check"><input type="checkbox" data-t="t2"> Compare From with Reply-To and Return-Path. Do they point to different domains?</label></li>
+              <li><label class="check"><input type="checkbox" data-t="t3"> Read every link from right to left. Is the last domain before the first “/” the real owner?</label></li>
+              <li><label class="check"><input type="checkbox" data-t="t4"> Look for look-alikes: swapped characters, extra security words, non-Latin letters.</label></li>
+              <li><label class="check"><input type="checkbox" data-t="t5"> Check the attachment type. Anything ending .iso .js .scr .exe .html or a double extension is a stop sign.</label></li>
+              <li><label class="check"><input type="checkbox" data-t="t6"> Is it asking for a password, a code, a payment change or secrecy?</label></li>
+              <li><label class="check"><input type="checkbox" data-t="t7"> Is there pressure: a deadline, a threat, an authority, a prize?</label></li>
+              <li><label class="check"><input type="checkbox" data-t="t8"> Verify by phone or in person using a number you already trust.</label></li>
+            </ul>
+            <figure class="tree" aria-label="Triage decision tree">
+              <div class="tree-top">Incoming suspicious message</div>
+              <div class="tree-branches">
+                <div><span class="tb tb-ok">Safe</span><i></i><span class="ta ta-ok">Close</span></div>
+                <div><span class="tb tb-warn">Suspicious</span><i></i><span class="ta ta-warn">Warn the user</span></div>
+                <div><span class="tb tb-bad">Malicious</span><i></i><span class="ta ta-bad">Block domain &amp; escalate</span></div>
+              </div>
+            </figure>
+          </div>
+        </article>
+
+        <article class="card pb-wide">
+          <h2>Eleven red flags</h2>
+          <div class="flags-grid">
+            <div><h3>1 Sender-domain mismatch</h3><p>The display name says one thing, the routing domain another.</p></div>
+            <div><h3>2 Fake forwarded chains</h3><p>“FW:” threads with pasted headers from conversations you were never in.</p></div>
+            <div><h3>3 Browser-in-the-browser</h3><p>A fake sign-in pop-up that cannot be dragged outside the browser window.</p></div>
+            <div><h3>4 Dangerous attachments</h3><p>.iso, .js, .scr, HTML files or double extensions posing as documents.</p></div>
+            <div><h3>5 Urgent bypass requests</h3><p>Demands for secrecy or skipping normal procedure.</p></div>
+            <div><h3>6 Sensitive information</h3><p>Unexpected asks for MFA codes, passwords or new payment details.</p></div>
+            <div><h3>7 Activity alerts</h3><p>Alarming sign-in warnings that point straight to a login page.</p></div>
+            <div><h3>8 MFA fatigue</h3><p>Repeated unprompted push prompts meant to wear you down until you approve.</p></div>
+            <div><h3>9 Callback scams (TOAD)</h3><p>No link, just a phone number to “fix” a fake charge.</p></div>
+            <div><h3>10 QR code prompts</h3><p>Unsolicited codes that move you to a phone, bypassing desktop filters.</p></div>
+            <div><h3>11 Deepfake meetings</h3><p>Cloned voice or video of an executive demanding mid-call payment changes.</p></div>
+          </div>
+        </article>
+
+        <article class="card">
+          <h2>Cognitive triggers</h2>
+          <dl class="defs">
+            <dt>Authority</dt><dd>Impersonating the C-suite, IT or law enforcement to demand compliance.</dd>
+            <dt>Urgency</dt><dd>“Account locked in 30 minutes” triggers fight-or-flight and cuts careful thinking.</dd>
+            <dt>Curiosity</dt><dd>“See what your colleague said about you.”</dd>
+            <dt>Fear / greed</dt><dd>Threats of legal action, or prizes you never entered for.</dd>
+          </dl>
+        </article>
+
+        <article class="card">
+          <h2>Who is being targeted?</h2>
+          <dl class="defs">
+            <dt>Mass phishing</dt><dd>Generic lures pretending to be big brands. High volume, low personalisation.</dd>
+            <dt>Spear phishing</dt><dd>Uses public information (project names, colleagues) to be believable.</dd>
+            <dt>Whaling</dt><dd>Targets executives to authorise large transfers (business email compromise).</dd>
+          </dl>
+        </article>
+
+        <article class="card">
+          <h2>Beyond the inbox</h2>
+          <dl class="defs">
+            <dt>Smishing</dt><dd>Malicious texts posing as parcels or bank alerts.</dd>
+            <dt>Vishing</dt><dd>Calls with a spoofed caller ID pretending to be IT or a government body.</dd>
+            <dt>Quishing</dt><dd>QR codes on posters or PDFs that push you to a phone.</dd>
+            <dt>Search-engine phishing</dt><dd>Poisoned results that put a fake login page above the real one.</dd>
+          </dl>
+        </article>
+
+        <article class="card">
+          <h2>Look-alike domains</h2>
+          <dl class="defs">
+            <dt>Typosquatting</dt><dd><code>amaz0n.com</code>: a swapped or missing character.</dd>
+            <dt>Homoglyphs</dt><dd><code>pаypal.com</code> with a Cyrillic “а”: identical to the eye.</dd>
+            <dt>Combosquatting</dt><dd><code>yourcompany-secure-login.com</code>: real name plus security words.</dd>
+            <dt>Sub-domain trap</dt><dd><code>www.decodelabs.tech.login-update.com</code>: the true owner is <code>login-update.com</code>. Read right to left.</dd>
+            <dt>Dangling DNS</dt><dd>A deleted cloud resource whose DNS record remains lets an attacker take over a trusted sub-domain.</dd>
+          </dl>
+        </article>
+
+        <article class="card pb-wide">
+          <h2>Running phishing simulations responsibly</h2>
+          <div class="dd">
+            <div><h3 class="do">Do</h3><ul class="plain"><li>Mimic real brands and use believable emotional triggers.</li><li>Include subtle, realistic anomalies such as a slightly misspelled domain.</li><li>Teach: give instant feedback and micro-learning after a click.</li></ul></div>
+            <div><h3 class="dont">Don't</h3><ul class="plain"><li>Scare people with family emergencies or termination threats.</li><li>Use lies that are easily verified, like impersonating the person at the next desk.</li><li>Chase a 0% click rate with comically bad spelling. Mirror real attackers.</li></ul></div>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <p class="muted small" style="margin:0">Phish Lab is a learning project for the DecodeLabs Cyber Security internship (Project 3). It uses transparent rules, not machine learning, so it can miss well-crafted attacks and can occasionally flag legitimate mail. Treat the result as decision support, never as proof. Nothing you paste leaves your browser.</p>
+    </div>
+  </footer>
+
+  <div class="toast-region" id="toasts" aria-live="polite"></div>
+
+  <script src="assets/js/analyzer.js"></script>
+  <script src="assets/js/samples.js"></script>
+  <script src="assets/js/quiz-data.js"></script>
+  <script src="assets/js/app.js"></script>
+</body>
+</html>

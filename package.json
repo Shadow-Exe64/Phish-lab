@@ -1,0 +1,8 @@
+{
+  "name": "phish-lab",
+  "version": "1.0.0",
+  "description": "Phish Lab: a client-side phishing triage bench and awareness trainer.",
+  "scripts": { "test": "node --test", "start": "python3 -m http.server 8080" },
+  "license": "MIT",
+  "private": true
+}
