@@ -186,29 +186,9 @@ npm test         # Node 18+, uses the built-in test runner
 └── .github/workflows/pages.yml
 ```
 
-## Limitations
 
-- Rules, not machine learning. A well-crafted attack with clean language on a compromised legitimate domain can score low. Always verify unexpected requests out of band.
-- The brand list is small and English-centric. Add brands in `BRANDS` at the top of `analyzer.js`.
-- The public-suffix list is a compact subset, so unusual country domains may be split imperfectly.
-- No live reputation lookups, by design (privacy).
 
-## Deployment
 
-The workflow in `.github/workflows/pages.yml` runs the tests, then publishes only the site files (`index.html`, `assets/`, `docs/`) to GitHub Pages.
-
-1. Push to the `main` branch.
-2. In the repository go to **Settings → Pages → Build and deployment → Source: GitHub Actions**.
-3. Open the **Actions** tab and confirm both jobs (`Run tests`, `Deploy to Pages`) are green.
-4. Your site is live at `https://shadow-exe64.github.io/phish-lab/`.
-
-> **Note:** GitHub Pages on a private repository needs a paid plan. Keep the repository public for a free live demo.
-
-## Roadmap
-
-- [ ] Parse `.eml` files dropped onto the page
-- [ ] Optional privacy-respecting short-link resolver
-- [ ] Localise rules and brands (Urdu, Hindi, Arabic)
 
 ## License
 
