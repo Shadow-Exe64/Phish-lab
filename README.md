@@ -11,7 +11,7 @@ Paste a suspicious message, get an explainable verdict, and learn to spot the ne
 ![Zero dependencies](https://img.shields.io/badge/dependencies-0-brightgreen?style=for-the-badge)
 ![Runs offline](https://img.shields.io/badge/data%20leaves%20browser-never-critical?style=for-the-badge)
 
-**Project 3 · Phishing Awareness Analysis** · DecodeLabs Cyber Security Internship, Batch 2026
+**Phishing Awareness Analysis** 
 
 <img src="docs/screenshot.png" alt="Phish Lab evidence view" width="820">
 
